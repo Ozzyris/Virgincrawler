@@ -196,16 +196,20 @@ function check_song(){
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 			}
 
-			if(songs[i].title == 'leave the door open' && songs[i].artist == 'silk sonic (bruno mars et anderson paak)'){
-				winning_status = 'step 1';
-
+			if(songs[i].title == 'love is back' && songs[i].artist == 'celeste'){
 				if(songs[i+1].title == 'et meme apres je t\'aimerai' && songs[i+1].artist == 'hoshi'){
-					winning_status = 'step 2';
-
-					if(songs[i+2].title == 'love is back' && songs[i+2].artist == 'celeste'){
+					if(songs[i+2].title == 'leave the door open' && songs[i+2].artist == 'silk sonic (bruno mars et anderson paak)'){
 						winning_status = 'step 3';
 					}
 				}
+			}
+			if(songs[i].title == 'et meme apres je t\'aimerai' && songs[i].artist == 'hoshi'){
+				if(songs[i+1].title == 'leave the door open' && songs[i+1].artist == 'silk sonic (bruno mars et anderson paak)'){
+					winning_status = 'step 2';
+				}
+			}
+			if(songs[0].title == 'leave the door open' && songs[0].artist == 'silk sonic (bruno mars et anderson paak)'){
+				winning_status = 'step 1';
 			}
 		}
 		resolve( winning_status );
