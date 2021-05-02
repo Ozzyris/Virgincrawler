@@ -117,13 +117,13 @@ function launch_virgin_crawler(){
 				console.log(winning_status);
 				switch(winning_status) {
 					case 'step 1':
-						return send_twilio_sms( 'Burno Mars have been played', ['+33669999682', '+33769979186'] );
+						return send_twilio_sms( 'Burno Mars have been played', ['+33669999682', '+33769979186', '+33631440224'] );
 						break;
 					case 'step 2':
-						return send_twilio_sms( 'Burno Mars and Hoshi have been played', ['+33669999682', '+33769979186'] );
+						return send_twilio_sms( 'Burno Mars and Hoshi have been played', ['+33669999682', '+33769979186', '+33631440224'] );
 						break;
 					case 'step 3':
-						return send_twilio_sms( '🎆 🎆 Its Winning Time 🎆 🎆', ['+33669999682', '+33769979186'] );
+						return send_twilio_sms( '🎆 🎆 Its Winning Time 🎆 🎆', ['+33669999682', '+33769979186', '+33631440224'] );
 						break;
 					default:
 						throw('');
@@ -196,21 +196,21 @@ function check_song(){
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 			}
 
-			if(songs[i].title == 'love is back' && songs[i].artist == 'celeste'){
-				if(songs[i+1].title == 'et meme apres je t\'aimerai' && songs[i+1].artist == 'hoshi'){
-					if(songs[i+2].title == 'leave the door open' && songs[i+2].artist == 'silk sonic (bruno mars et anderson paak)'){
-						winning_status = 'step 3';
-					}
-				}
-			}
-			if(songs[i].title == 'et meme apres je t\'aimerai' && songs[i].artist == 'hoshi'){
-				if(songs[i+1].title == 'leave the door open' && songs[i+1].artist == 'silk sonic (bruno mars et anderson paak)'){
-					winning_status = 'step 2';
-				}
-			}
-			if(songs[0].title == 'leave the door open' && songs[0].artist == 'silk sonic (bruno mars et anderson paak)'){
-				winning_status = 'step 1';
-			}
+			// if(songs[i].title == 'love is back' && songs[i].artist == 'celeste'){
+			// 	if(songs[i+1].title == 'et meme apres je t\'aimerai' && songs[i+1].artist == 'hoshi'){
+			// 		if(songs[i+2].title == 'leave the door open' && songs[i+2].artist == 'silk sonic (bruno mars et anderson paak)'){
+			// 			winning_status = 'step 3';
+			// 		}
+			// 	}
+			// }
+			// if(songs[i].title == 'et meme apres je t\'aimerai' && songs[i].artist == 'hoshi'){
+			// 	if(songs[i+1].title == 'leave the door open' && songs[i+1].artist == 'silk sonic (bruno mars et anderson paak)'){
+			// 		winning_status = 'step 2';
+			// 	}
+			// }
+			// if(songs[0].title == 'leave the door open' && songs[0].artist == 'silk sonic (bruno mars et anderson paak)'){
+			// 	winning_status = 'step 1';
+			// }
 		}
 		resolve( winning_status );
 	})
