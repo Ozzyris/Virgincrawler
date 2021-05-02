@@ -4,135 +4,232 @@ var crawler = require("crawler"),
 	moment = require('moment');
 
 // GOLBALES
-var cron_manager = new CronJobManager();
+const cron_manager = new CronJobManager(),
+	  songs = [],
+	  config = require('../config'),
+	  accountSid = config.twilio.account_sid,
+	  authToken = config.twilio.auth_token,
+	  client = require('twilio')(accountSid, authToken);
 
-launch_cron();
-function launch_cron(){
-	cron_manager.add('my_cron_id', '* * * * *', () => { launch_crawler() }, { start:true, timeZone:"Europe/Paris"});
+
+function init_virgin_crawler() {
+	let song_list;
+
+	crawl_website( 'https://www.virginradio.fr/cetait-quoi-ce-titre/' )
+		.then( html => {
+			let ul_first_anchor = html.indexOf("<ul class=\"list _backed _nom\">"),
+				ul_last_anchor = html.indexOf("</span></a></li></ul></div><div class=\"right\">") + 21,
+				ul_list = html.slice(ul_first_anchor, ul_last_anchor);
+			
+			song_list = ul_list.split('<li class="row ">');
+			song_list.shift();
+
+
+			return get_song_details( song_list[0] );
+		})
+		.then( song_details => {
+			songs.push( song_details );
+			return get_song_details( song_list[1] );
+		})
+		.then( song_details => {
+			songs.push( song_details );
+			return get_song_details( song_list[2] );
+		})
+		.then( song_details => {
+			songs.push( song_details );
+			return get_song_details( song_list[3] );
+		})
+		.then( song_details => {
+			songs.push( song_details );
+			return get_song_details( song_list[4] );
+		})
+		.then( song_details => {
+			songs.push( song_details );
+
+			console.log('*******************************************************');
+			for (var i = 0; i <= (songs.length-1); i++) {
+				console.log(songs[i].time + ' | title: ' + songs[i].title + ' | artist: ' + songs[i].artist);
+			}
+
+			cron_manager.add('my_cron_id', '* * * * *', () => { launch_virgin_crawler() }, { start:true, timeZone:"Europe/Paris"});
+		})
+		.catch( error => {
+			console.log(error);
+		})
+
+
 }
 
 
-function launch_crawler() {
-	var p = new push( {
-    	k: 'x69TslUVLawkr9uRldIT',
-    	debug: true
-	}),
-	notification_content = {
-    	t: "",           // Title (optional)
-    	m: '',								   // Message (required)
-    	s: '10',                               // Sound (value 0-28) (optional)
-    	v: '2',                                // Vibration (empty or value 1-3) (optional)
-    	i: '55',                               // Icon (value 1-98) (optional)
-    	c: '',                          // Icon color hexadecimal color code (optional)
-    	d: 'a',								   // Device or Device Group id (optional)
-    	// u: '',        						   // an URL (optional)
-    	// ut: '',                   			   // URLs title (optional)
-    	// l: '',                                 // Time to Live (optional)
-    	pr: '2',                               // Priority (optional: -2, -1, 0, 1, 2)
-    	// re: '0',                               // Retry (optional: 60-10800 seconds)
-    	// ex: '0',                               // Expire (optional: 60-10800 seconds)
-    	// cr: '20',                              // Confirm (optional: 60-10800 seconds)
-    	a: '1',                                // Answer
-    	// p: '',                                 // Image converted to > Data URL with Base64-encoded string (optional)
-    	// p2: '',                                // Image 2 converted to > Data URL with Base64-encoded string (optional)
-    	// p3: ''                                 // Image 3 converted to > Data URL with Base64-encoded string (optional)
-	},
-	delay_new_notif = false;
-	delay_new_notif_2 = false;
+function launch_virgin_crawler(){
+	let song_list;
 
-	var c = new crawler({
-    	maxConnections : 10,
-    	// This will be called for each crawled page
-   		callback : function (error, res, done) {
-        	if(error){
-        	    console.log('error:' + error);
-        	}else{
-				let html_body = res.body,
-					ul_anchor = html_body.indexOf("class=\"list _backed _nom\""),
-					first_song = html_body.slice(ul_anchor, (ul_anchor + 550)),
-					first_artist_anchor = first_song.indexOf("<span class=\"artist\">"),
-					first_artist_last_anchor = first_song.indexOf("</span><span class=\"title\">"),
-					first_artist = first_song.slice((first_artist_anchor+21), first_artist_last_anchor),
-					first_title_anchor = first_artist_last_anchor + 27,
-					first_title_last_anchor = first_song.indexOf("</span></div></li><li class=\"row \"><div class=\"time\">"),
-					first_title = first_song.slice(first_title_anchor, first_title_last_anchor),
-					first_time_anchor = first_song.indexOf("<div class=\"time\">"),
-					first_time_last_anchor = first_song.indexOf("</div><div class=\"inner _l\"><span class=\"disp cover\">"),
-					first_time = first_song.slice((first_time_anchor+18), first_time_last_anchor);
+	crawl_website( 'https://www.virginradio.fr/cetait-quoi-ce-titre/' )
+			.then( html => {
+				let ul_first_anchor = html.indexOf("<ul class=\"list _backed _nom\">"),
+				ul_last_anchor = html.indexOf("</span></a></li></ul></div><div class=\"right\">") + 21,
+				ul_list = html.slice(ul_first_anchor, ul_last_anchor);
+			
+				song_list = ul_list.split('<li class="row ">');
+				song_list.shift();
 
-				// console.log(first_song);
+				return get_song_details( song_list[0] );
+			})
+			.then( song_details => {
+				if( songs[0].title != song_details.title ){
+					songs = [];
+					return get_song_details( song_list[0] );
+				}else{
+					console.log('*******************************************************');
+					console.log('Updated at ' + moment().format('LT'))
+					throw('');
+				}
+			})
+			.then( song_details => {
+				songs.push( song_details );
+				return get_song_details( song_list[1] );
+			})
+			.then( song_details => {
+				songs.push( song_details );
+				return get_song_details( song_list[2] );
+			})
+			.then( song_details => {
+				songs.push( song_details );
+				return get_song_details( song_list[3] );
+			})
+			.then( song_details => {
+				songs.push( song_details );
+				return get_song_details( song_list[4] );
+			})
+			.then( song_details => {
+				songs.push( song_details );
+
 				console.log('*******************************************************');
-				console.log(first_time + ' | title: ' + first_title + ' | artist: ' + first_artist);
-
-				let second_song = html_body.slice((ul_anchor+ 550), (ul_anchor + (550*2))),
-					second_artist_anchor = second_song.indexOf("<span class=\"artist\">"),
-					second_artist_last_anchor = second_song.indexOf("</span><span class=\"title\">"),
-					second_artist = second_song.slice((second_artist_anchor+21), second_artist_last_anchor),
-					second_title_anchor = second_artist_last_anchor + 27,
-					second_title_last_anchor = second_song.indexOf("</span></div></li><li class=\"row \"><div class=\"time\">"),
-					second_title = second_song.slice(second_title_anchor, second_title_last_anchor),
-					second_time_anchor = second_song.indexOf("<div class=\"time\">"),
-					second_time_last_anchor = second_song.indexOf("</div><div class=\"inner _l\"><span class=\"disp cover\">"),
-					second_time = second_song.slice((second_time_anchor+18), second_time_last_anchor);
-
-				// console.log(second_song);
-				console.log(second_time + ' | title: ' + second_title + ' | artist: ' + second_artist);
-
-				if( first_title == 'Leave the door open' || first_artist == 'Silk Sonic (Bruno Mars et Anderson Paak)'){
-					console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-					console.log('bruno mars');
-					console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+				for (var i = 0; i <= (songs.length-1); i++) {
+					console.log(songs[i].time + ' | title: ' + songs[i].title + ' | artist: ' + songs[i].artist);
 				}
 
-				if( first_title == 'Et meme apres je t\'aimerai' || first_artist == 'Hoshi'){
-					console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-					console.log('hoshi');
-					console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+				return check_song();
+
+			})
+			.then( winning_status => {
+				console.log(winning_status);
+
+				switch(winning_status) {
+					case 'step 1':
+						return send_twilio_sms( 'Burno Mars have been played', ['+33669999682', '+33769979186'] );
+						break;
+					case 'step 2':
+						return send_twilio_sms( 'Burno Mars and Hoshi have been played', ['+33669999682', '+33769979186'] );
+						break;
+					case 'step 3':
+						return send_twilio_sms( '🎆 🎆 Its Winning Time 🎆 🎆', ['+33669999682', '+33769979186'] );
+						break;
+					default:
+						throw('');
 				}
+			})
+			.then( is_sms_sent => {
+				console.log( is_sms_sent );
+			})
+			.catch( error => {
+				console.log(error);
+			})
+}
 
-				// if( first_title == 'Leave the door open' || first_artist == 'Silk Sonic (Bruno Mars et Anderson Paak)'){
-				// 	console.log(delay_new_notif_2);
-				// 	if( delay_new_notif_2 == false ){
-				// 		notification_content.t = "Le premier titre de la list est sortie!"
-				// 		notification_content.m = "A: " + first_time + " | title: " + first_title + " | artist: " + first_artist
-				// 		p.send( notification_content, function( err, result ) {
-				// 			console.log('First Notification sent');
-				// 			delay_new_notif_2 = true;
-				// 			console.log('available notification' + ' ' + result)
-				// 		});
-				// 	}
-				// }
 
-				if( (first_title == 'Et meme apres je t\'aimerai' || first_artist == 'Hoshi') && (second_title == 'Leave the door open' || second_artist == 'Silk Sonic (Bruno Mars et Anderson Paak)')){
-					console.log(delay_new_notif);
-					if( delay_new_notif == false ){
-						notification_content.t = "Les deux premier titres de la list sont sortie!"
-						notification_content.m = first_time + " | title: " + first_title + " | artist: " + first_artist + ' | ' + second_time + ' | title: ' + second_title + ' | artist: ' + second_artist;
-						p.send( notification_content, function( err, result ) {
-    						console.log('Second Notification sent');
-							delay_new_notif = true;
-							console.log('available notification' + result.available)
-						});
 
-						// let new_cron_date = convert_date_to_cron( moment().add(5, 'm') );
-						// console.log( new_cron_date );
-						// cron_manager.add('delay_new_notif_cron', new_cron_date, () => { console.log('can send a new notif'); delay_new_notif = false }, { start:true, timeZone:"Europe/Paris" });
+function get_song_details( song_html ){
+	return new Promise((resolve, reject)=>{		
+		let artist_first_anchor = song_html.indexOf("<span class=\"artist\">"),
+			artist_last_anchor = song_html.indexOf("</span><span class=\"title\">"),
+			title_first_anchor = song_html.indexOf("<span class=\"title\">"),
+			title_last_anchor = song_html.indexOf("</span></div></li><li class=\"row \">") + 21,
+			time_first_anchor = song_html.indexOf("<div class=\"time\">"),
+			time_last_anchor = song_html.indexOf("</div><div class=\"inner _l\"><span class=\"disp cover\">");
+
+		let song_details = {
+			'artist': song_html.slice((artist_first_anchor+21), artist_last_anchor),
+			'title': song_html.slice(title_first_anchor, title_last_anchor),
+			'time': song_html.slice((time_first_anchor+18), time_last_anchor)
+		}
+
+		resolve( song_details );
+	});
+}
+
+function crawl_website( website ){
+	return new Promise((resolve, reject)=>{
+		var crawler_one = new crawler({
+    		maxConnections : 10,
+   			callback : function (error, res, done) {
+        		if(error){
+        			reject( error );
+        	    	console.log('error:' + error);
+        		}else{
+        			resolve( res.body );
+        		}
+        		done();
+        	}
+		});
+		crawler_one.queue(website);
+	});
+}
+
+function check_song(){
+	return new Promise((resolve, reject)=>{
+		let winning_status = 'none';
+		for (var i = 0; i <= (songs.length-1); i++) {
+			if(songs[i].title == 'Leave the door open' && songs[i].artist == 'Silk Sonic (Bruno Mars et Anderson Paak)'){
+				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+				console.log('Bruno mars');
+				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+			}
+			if(songs[i].title == 'Et meme apres je t\'aimerai' && songs[i].artist == 'Hoshi'){
+				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+				console.log('Hoshi');
+				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+			}
+			if(songs[i].title == 'Love is back' && songs[i].artist == 'Celeste'){
+				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+				console.log('Celeste');
+				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+			}
+
+			if(songs[i].title == 'Leave the door open' && songs[i].artist == 'Silk Sonic (Bruno Mars et Anderson Paak)'){
+				winning_status = 'step 1';
+
+				if(songs[i+1].title == 'Et meme apres je t\'aimerai' && songs[i+1].artist == 'Hoshi'){
+					winning_status = 'step 2';
+
+					if(songs[i+2].title == 'Et meme apres je t\'aimerai' && songs[i+2].artist == 'Hoshi'){
+						winning_status = 'step 3';
 					}
 				}
-        	}
-        	done();
-    	}
-	});
-	c.queue('https://www.virginradio.fr/cetait-quoi-ce-titre/');
+			}
+		}
+		resolve( winning_status );
+	})
 }
 
-
-
-// CRON
-function convert_date_to_cron( date ){
-	return moment(date).minute() + ' ' + moment(date).hour() + ' ' + moment(date).date() + ' ' + moment(date).month() + ' *';
+function send_twilio_sms( text, client_number ){
+	return new Promise((resolve, reject)=>{
+		let results = [];
+		for (var i = client_number.length - 1; i >= 0; i--) {
+			client.messages
+  				.create({
+    				body: text,
+     				from: config.twilio.phone_number,
+     				to: client_number[i]
+   				})
+	  		.then(message => {
+	  			results.push( message );
+	  		});
+		}
+		resolve(results);
+	});
 }
 
 module.exports={
-	'launch_crawler': launch_crawler,
+	'init_virgin_crawler': init_virgin_crawler,
 }

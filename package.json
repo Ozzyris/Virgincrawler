@@ -1,20 +1,28 @@
 {
-  "name": "virgin crawler",
+  "name": "virgin-crawler",
   "version": "0.0.1",
   "description": "Some good way to cheat the system.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ozzyris/virgin-crawler.git"
   },
   "author": "Alexandre Nicol",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ozzyris/virgin-crawler/issues"
+  },
+  "homepage": "https://github.com/Ozzyris/virgin-crawler#readme",
   "dependencies": {
     "crawler": "^1.3.0",
     "cron-job-manager": "^2.1.4",
     "express": "^4.17.1",
     "moment": "^2.29.1",
     "morgan": "^1.10.0",
-    "pushsafer-notifications": "^0.1.9"
+    "pushsafer-notifications": "^0.1.9",
+    "twilio": "^3.61.0"
   }
 }

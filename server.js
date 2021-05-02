@@ -2,7 +2,7 @@
 const express = require('express'),
     app = express(),
     server = require('http').createServer(app),
-    config = require('./config'),    
+    config = require('./config'),
     morgan = require('morgan');
 
 //HELPERS
@@ -15,4 +15,4 @@ app.use(morgan('dev'));
 // CONFIGURATION
 server.listen(config.port);
 
-crawler_helper.launch_crawler();
+crawler_helper.init_virgin_crawler();
