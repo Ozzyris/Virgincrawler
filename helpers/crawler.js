@@ -76,6 +76,7 @@ function launch_virgin_crawler(){
 				return get_song_details( song_list[0] );
 			})
 			.then( song_details => {
+
 				if( songs[0].title != song_details.title ){
 					songs = [];
 					return get_song_details( song_list[0] );
@@ -140,17 +141,17 @@ function launch_virgin_crawler(){
 
 
 function get_song_details( song_html ){
-	return new Promise((resolve, reject)=>{		
+	return new Promise((resolve, reject)=>{
 		let artist_first_anchor = song_html.indexOf("<span class=\"artist\">"),
 			artist_last_anchor = song_html.indexOf("</span><span class=\"title\">"),
 			title_first_anchor = song_html.indexOf("<span class=\"title\">"),
-			title_last_anchor = song_html.indexOf("</span></div></li><li class=\"row \">") + 21,
+			title_last_anchor = song_html.indexOf("</span></div></li>"),
 			time_first_anchor = song_html.indexOf("<div class=\"time\">"),
 			time_last_anchor = song_html.indexOf("</div><div class=\"inner _l\"><span class=\"disp cover\">");
 
 		let song_details = {
 			'artist': song_html.slice((artist_first_anchor+21), artist_last_anchor),
-			'title': song_html.slice(title_first_anchor, title_last_anchor),
+			'title': song_html.slice((title_first_anchor+20), title_last_anchor),
 			'time': song_html.slice((time_first_anchor+18), time_last_anchor)
 		}
 
