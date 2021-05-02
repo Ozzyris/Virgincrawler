@@ -77,8 +77,8 @@ function launch_virgin_crawler(){
 			})
 			.then( song_details => {
 
-				if( songs[0].title != song_details.title ){
-					songs = [];
+				if( songs[0].title.toLowerCase() != song_details.title ){
+					songs.splice(0, songs.length)
 					return get_song_details( song_list[0] );
 				}else{
 					console.log('*******************************************************');
@@ -115,7 +115,6 @@ function launch_virgin_crawler(){
 			})
 			.then( winning_status => {
 				console.log(winning_status);
-
 				switch(winning_status) {
 					case 'step 1':
 						return send_twilio_sms( 'Burno Mars have been played', ['+33669999682', '+33769979186'] );
@@ -150,9 +149,9 @@ function get_song_details( song_html ){
 			time_last_anchor = song_html.indexOf("</div><div class=\"inner _l\"><span class=\"disp cover\">");
 
 		let song_details = {
-			'artist': song_html.slice((artist_first_anchor+21), artist_last_anchor),
-			'title': song_html.slice((title_first_anchor+20), title_last_anchor),
-			'time': song_html.slice((time_first_anchor+18), time_last_anchor)
+			'artist': song_html.slice((artist_first_anchor+21), artist_last_anchor).toLowerCase(),
+			'title': song_html.slice((title_first_anchor+20), title_last_anchor).toLowerCase(),
+			'time': song_html.slice((time_first_anchor+18), time_last_anchor).toLowerCase()
 		}
 
 		resolve( song_details );
@@ -181,29 +180,29 @@ function check_song(){
 	return new Promise((resolve, reject)=>{
 		let winning_status = 'none';
 		for (var i = 0; i <= (songs.length-1); i++) {
-			if(songs[i].title == 'Leave the door open' && songs[i].artist == 'Silk Sonic (Bruno Mars et Anderson Paak)'){
+			if(songs[i].title == 'leave the door open' && songs[i].artist == 'silk sonic (bruno mars et anderson paak)'){
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 				console.log('Bruno mars');
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 			}
-			if(songs[i].title == 'Et meme apres je t\'aimerai' && songs[i].artist == 'Hoshi'){
+			if(songs[i].title == 'et meme apres je t\'aimerai' && songs[i].artist == 'hoshi'){
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 				console.log('Hoshi');
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 			}
-			if(songs[i].title == 'Love is back' && songs[i].artist == 'Celeste'){
+			if(songs[i].title == 'love is back' && songs[i].artist == 'celeste'){
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 				console.log('Celeste');
 				console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
 			}
 
-			if(songs[i].title == 'Leave the door open' && songs[i].artist == 'Silk Sonic (Bruno Mars et Anderson Paak)'){
+			if(songs[i].title == 'leave the door open' && songs[i].artist == 'silk sonic (bruno mars et anderson paak)'){
 				winning_status = 'step 1';
 
-				if(songs[i+1].title == 'Et meme apres je t\'aimerai' && songs[i+1].artist == 'Hoshi'){
+				if(songs[i+1].title == 'et meme apres je t\'aimerai' && songs[i+1].artist == 'hoshi'){
 					winning_status = 'step 2';
 
-					if(songs[i+2].title == 'Et meme apres je t\'aimerai' && songs[i+2].artist == 'Hoshi'){
+					if(songs[i+2].title == 'love is back' && songs[i+2].artist == 'celeste'){
 						winning_status = 'step 3';
 					}
 				}
@@ -216,7 +215,7 @@ function check_song(){
 function send_twilio_sms( text, client_number ){
 	return new Promise((resolve, reject)=>{
 		let results = [];
-		for (var i = client_number.length - 1; i >= 0; i--) {
+		for (var i = 0; i <= (client_number.length - 1); i++) {
 			client.messages
   				.create({
     				body: text,
